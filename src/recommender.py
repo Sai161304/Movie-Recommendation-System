@@ -54,7 +54,7 @@ class MovieRecommender:
         if content.fillna("").str.strip().eq("").all():
             raise ValueError(
                 "Every movie has empty text after cleaning. "
-                "Check that your CSV has title/genres/overview/keywords columns."
+                "Check that your CSV has title/genres/director/cast columns."
             )
         # Some tiny datasets may have min_df=2 fail; fall back gracefully.
         try:
@@ -152,6 +152,8 @@ class MovieRecommender:
                 {
                     "title": row["title"],
                     "genres": row["genres"],
+                    "director": row["director"],
+                    "cast": row["cast"],
                     "overview": row["overview"],
                     "keywords": row["keywords"],
                     "vote_average": row["vote_average"],
@@ -189,25 +191,15 @@ class MovieRecommender:
         """
         Combine metadata into one document.
 
-        Genres are repeated so they weigh a little more than a single plot word.
+        Uses only genre, director, and cast for similarity.
         """
         genres = clean_text(row.get("genres", ""))
-        overview = clean_text(row.get("overview", ""))
-        keywords = clean_text(row.get("keywords", ""))
-        tagline = clean_text(row.get("tagline", ""))
         director = clean_text(row.get("director", ""))
         cast = clean_text(row.get("cast", ""))
-        title = clean_text(row.get("title", ""))
 
         parts = [
             genres,
-            genres,  # extra weight
-            overview,
-            keywords,
-            keywords,
-            tagline,
             director,
             cast,
-            title,
         ]
         return " ".join(part for part in parts if part)

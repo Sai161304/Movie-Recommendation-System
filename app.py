@@ -46,6 +46,7 @@ def inject_css() -> None:
                 border-radius: 14px;
                 padding: 0.9rem 1rem;
                 background: #ffffff;
+                color: #111827;
                 height: 100%;
             }
             .muted { color: #6b7280; font-size: 0.92rem; }
@@ -118,10 +119,8 @@ def render_movie_details(details: dict) -> None:
     else:
         st.info("No plot overview is available for this title in the current dataset.")
 
-    extra_cols = st.columns(3)
+    extra_cols = st.columns(1)
     extra_cols[0].markdown(f"**Keywords**  \n{details.get('keywords') or 'Not listed'}")
-    extra_cols[1].markdown(f"**Director**  \n{details.get('director') or 'Not listed'}")
-    extra_cols[2].markdown(f"**Top cast**  \n{details.get('cast') or 'Not listed'}")
 
 
 def render_recommendations(recs: pd.DataFrame, genre_filter: str) -> None:
@@ -140,16 +139,11 @@ def render_recommendations(recs: pd.DataFrame, genre_filter: str) -> None:
     columns = st.columns(2)
     for index, row in recs.iterrows():
         with columns[index % 2]:
-            overview = str(row.get("overview") or "").strip()
-            preview = overview[:220] + ("..." if len(overview) > 220 else "")
-            if not preview:
-                preview = "No plot overview in this dataset."
             st.markdown(
                 f"""
                 <div class="movie-card">
                     <h4>{html.escape(str(row['title']))}</h4>
                     <p class="muted">{html.escape(pretty_genres(row['genres']))}</p>
-                    <p>{html.escape(preview)}</p>
                     <p class="score">Similarity: {row['similarity']:.3f}
                     &nbsp;·&nbsp; Rating {format_rating(row['vote_average'])}</p>
                 </div>
@@ -164,7 +158,7 @@ def main() -> None:
         """
         <div class="hero">
             <h1>🎬 Movie Recommendation System</h1>
-            <p>Content-based suggestions using genres, overviews, keywords, and other metadata.
+            <p>Content-based suggestions using genres.
             Powered by TF-IDF and cosine similarity. No paid APIs.</p>
         </div>
         """,
@@ -196,8 +190,6 @@ def main() -> None:
         st.header("Dataset")
         st.write(f"**Source:** `{info['source']}`")
         st.write(f"**Movies:** {info['n_movies']}")
-        st.write(f"**Overviews filled:** {info['overview_coverage']:.0%}")
-        st.write(f"**Keywords filled:** {info['keyword_coverage']:.0%}")
         if info["source"] == "movielens_small":
             st.caption(
                 "MovieLens has genres and user tags, but not plot overviews. "

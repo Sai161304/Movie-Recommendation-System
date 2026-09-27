@@ -50,11 +50,15 @@ def describe_dataset(movies: pd.DataFrame) -> dict:
     """Small summary used by the UI and the evaluator."""
     has_overview = (movies["overview"].fillna("").str.strip() != "").mean()
     has_keywords = (movies["keywords"].fillna("").str.strip() != "").mean()
+    has_director = (movies["director"].fillna("").str.strip() != "").mean()
+    has_cast = (movies["cast"].fillna("").str.strip() != "").mean()
     return {
         "n_movies": int(len(movies)),
         "source": str(movies["source"].iloc[0]) if "source" in movies.columns and len(movies) else "unknown",
         "overview_coverage": float(has_overview),
         "keyword_coverage": float(has_keywords),
+        "director_coverage": float(has_director),
+        "cast_coverage": float(has_cast),
         "n_genres": int(len({name for value in movies["genres"] for name in genre_list(value)})),
     }
 
